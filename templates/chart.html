@@ -28,6 +28,21 @@
       <canvas id="myChart" width="300" height="300"></canvas>
     </div>
     <script>
+        // Plugin to draw a thick square border around the chart area
+        const thickSquareBorder = {
+            id: 'thickSquareBorder',
+            afterDraw(chart, args, options) {
+                const {ctx, chartArea: area} = chart;
+                ctx.save();
+                ctx.lineWidth = options.width || 8;
+                ctx.strokeStyle = options.color || "#222";
+                ctx.beginPath();
+                ctx.rect(area.left, area.top, area.right - area.left, area.bottom - area.top);
+                ctx.stroke();
+                ctx.restore();
+            }
+        };
+
         const ctx = document.getElementById('myChart').getContext('2d');
         const data = {
             datasets: [{
@@ -43,24 +58,22 @@
             options: {
                 animation: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    thickSquareBorder: { width: 8, color: "#222" }
                 },
-                layout: {
-                    padding: 0
-                },
+                layout: { padding: 0 },
+                maintainAspectRatio: true,
                 scales: {
                     x: {
                         type: 'linear',
                         min: 0,
                         max: 1,
                         grid: {
-                            lineWidth: 2 // Thicker grid lines
+                            color: '#888',
+                            lineWidth: 2,
+                            drawBorder: false
                         },
-                        border: {
-                            display: true,
-                            color: '#222',
-                            width: 6 // <<-- THICKER CHART BOX BORDER
-                        },
+                        border: { display: false },
                         ticks: { display: false },
                         title: { display: false }
                     },
@@ -69,18 +82,17 @@
                         min: 0,
                         max: 1,
                         grid: {
-                            lineWidth: 2 // Thicker grid lines
+                            color: '#888',
+                            lineWidth: 2,
+                            drawBorder: false
                         },
-                        border: {
-                            display: true,
-                            color: '#222',
-                            width: 6 // <<-- THICKER CHART BOX BORDER
-                        },
+                        border: { display: false },
                         ticks: { display: false },
                         title: { display: false }
                     }
                 }
-            }
+            },
+            plugins: [thickSquareBorder]
         };
         const myChart = new Chart(ctx, config);
 
