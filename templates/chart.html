@@ -5,8 +5,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
       .chart-container {
-        width: 320px;
-        height: 320px;
+        width: 420px;
+        height: 420px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -16,16 +16,16 @@
         border-radius: 10px;
       }
       canvas {
-        width: 300px !important;
-        height: 300px !important;
+        width: 400px !important;
+        height: 400px !important;
         display: block;
       }
     </style>
 </head>
 <body>
-    <h2 style="text-align:center;">Bouncing Ball (2D)</h2>
+    <h2 style="text-align:center;">Bouncing Ball (2D, 0–100 units)</h2>
     <div class="chart-container">
-      <canvas id="myChart" width="300" height="300"></canvas>
+      <canvas id="myChart" width="400" height="400"></canvas>
     </div>
     <script>
         // Plugin to draw a thick square border around the chart area
@@ -47,9 +47,9 @@
         const data = {
             datasets: [{
                 label: 'Ball Position',
-                data: [{x: 0.5, y: 0.5}],
+                data: [{x: 50, y: 50}],
                 backgroundColor: 'blue',
-                pointRadius: 10
+                pointRadius: 8 // Ball visual size; adjust for 2-unit diameter in 400px plot
             }]
         };
         const config = {
@@ -67,27 +67,27 @@
                     x: {
                         type: 'linear',
                         min: 0,
-                        max: 1,
+                        max: 100,
                         grid: {
                             color: '#888',
                             lineWidth: 2,
                             drawBorder: false
                         },
                         border: { display: false },
-                        ticks: { stepSize: 0.1, display: false },
+                        ticks: { stepSize: 5, display: false },
                         title: { display: false }
                     },
                     y: {
                         type: 'linear',
                         min: 0,
-                        max: 1,
+                        max: 100,
                         grid: {
                             color: '#888',
                             lineWidth: 2,
                             drawBorder: false
                         },
                         border: { display: false },
-                        ticks: { stepSize: 0.1, display: false },
+                        ticks: { stepSize: 5, display: false },
                         title: { display: false }
                     }
                 }
