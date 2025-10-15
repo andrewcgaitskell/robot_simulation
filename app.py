@@ -7,7 +7,7 @@ app = Quart(__name__)
 # Ball sensor parameters
 x, y = 50, 50
 vx, vy = 0.6, 0.4
-circle_radius = 0.5      # Each circle: diameter 1 units
+circle_radius = 0.25      # Each circle: diameter 1 units
 circle_spacing = 3       # Center-to-center distance
 sensor_offsets = [-circle_spacing, 0, circle_spacing]  # x-offsets for left, center, right
 
