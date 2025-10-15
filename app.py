@@ -4,10 +4,9 @@ import json
 
 app = Quart(__name__)
 
-# Ball parameters and initial state
 x, y = 50, 50
 vx, vy = 0.6, 0.4
-half_side = 2.5  # Half of 5x5
+half_side = 2.5
 
 def get_border_squares():
     border = []
@@ -31,58 +30,42 @@ async def ws():
     while True:
         prev_x, prev_y = x, y
 
-        # Predict next position
-        next_x = x + vx
-        next_y = y + vy
+        # Take a step
+        x += vx
+        y += vy
 
-        # Find which 5x5 cell the center would enter
-        cell_x = int(next_x // 5) * 5
-        cell_y = int(next_y // 5) * 5
+        # What 5x5 cell is the center in now, and before?
+        cell_x = int(x // 5) * 5
+        cell_y = int(y // 5) * 5
         prev_cell_x = int(prev_x // 5) * 5
         prev_cell_y = int(prev_y // 5) * 5
 
-        bounced = False
-
-        # X direction collision (horizontal bounce)
-        if (cell_x, prev_cell_y) in border_set and cell_x != prev_cell_x:
-            vx = -vx
-            bounced = True
-            next_x = prev_x  # Step back if bounced
-
-        # Y direction collision (vertical bounce)
-        if (prev_cell_x, cell_y) in border_set and cell_y != prev_cell_y:
-            vy = -vy
-            bounced = True
-            next_y = prev_y  # Step back if bounced
-
-        # Corner (simultaneous) collision
-        if (cell_x, cell_y) in border_set and (cell_x != prev_cell_x and cell_y != prev_cell_y):
-            vx = -vx
-            vy = -vy
-            next_x = prev_x
-            next_y = prev_y
-            bounced = True
-
-        # Move (step back if bounced, else take next step)
-        x = next_x
-        y = next_y
+        if (cell_x, cell_y) in border_set:
+            # Reverse axis if entered a new cell along that axis
+            if cell_x != prev_cell_x:
+                vx = -vx
+                x = prev_x  # step back out
+            if cell_y != prev_cell_y:
+                vy = -vy
+                y = prev_y  # step back out
 
         # Clamp to keep center inside visible area
         if x - half_side < 0:
             x = half_side
-            vx = -vx
+            vx = abs(vx)
         if x + half_side > 100:
             x = 100 - half_side
-            vx = -vx
+            vx = -abs(vx)
         if y - half_side < 0:
             y = half_side
-            vy = -vy
+            vy = abs(vy)
         if y + half_side > 100:
             y = 100 - half_side
-            vy = -vy
+            vy = -abs(vy)
 
         await websocket.send(json.dumps({"x": x, "y": y}))
         await asyncio.sleep(0.02)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+    
