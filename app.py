@@ -4,9 +4,11 @@ import json
 
 app = Quart(__name__)
 
-# Ball physics parameters
-x, y = 0.5, 0.5
-vx, vy = 0.012, 0.009  # set initial speeds
+# Ball physics parameters (standardized)
+x, y = 50, 50  # start in the center
+vx, vy = 0.6, 0.4  # adjust for desired speed
+radius = 1  # radius in units (diameter=2)
+min_val, max_val = 0, 100
 
 @app.route("/")
 async def index():
@@ -19,18 +21,18 @@ async def ws():
         x += vx
         y += vy
 
-        # Bounce exactly at axes (0 and 1)
-        if x < 0:
-            x = 0
+        # Bounce at edges so the ball (center) stays fully inside the box
+        if x - radius < min_val:
+            x = min_val + radius
             vx = -vx
-        if x > 1:
-            x = 1
+        if x + radius > max_val:
+            x = max_val - radius
             vx = -vx
-        if y < 0:
-            y = 0
+        if y - radius < min_val:
+            y = min_val + radius
             vy = -vy
-        if y > 1:
-            y = 1
+        if y + radius > max_val:
+            y = max_val - radius
             vy = -vy
 
         await websocket.send(json.dumps({"x": x, "y": y}))
