@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Bouncing Ball 2D Chart</title>
+    <title>Bouncing Square Ball (Bounces on Black Squares)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
       .chart-container {
@@ -23,35 +23,52 @@
     </style>
 </head>
 <body>
-    <h2 style="text-align:center;">Bouncing Ball (2D, 0–100 units)</h2>
+    <h2 style="text-align:center;">Bouncing Ball (Bounces on Black Squares)</h2>
     <div class="chart-container">
       <canvas id="myChart" width="400" height="400"></canvas>
     </div>
     <script>
-        // Plugin to draw a thick square border around the chart area
-        const thickSquareBorder = {
-            id: 'thickSquareBorder',
-            afterDraw(chart, args, options) {
-                const {ctx, chartArea: area} = chart;
+        const borderSquares = {{ border|tojson }};
+        const SQUARE_SIZE = 5;
+
+        // Plugin to draw 5x5 border squares
+        const borderSquarePlugin = {
+            id: 'borderSquarePlugin',
+            beforeDatasetsDraw(chart, args, options) {
+                const {ctx, scales: {x, y}} = chart;
                 ctx.save();
-                ctx.lineWidth = options.width || 8;
-                ctx.strokeStyle = options.color || "#222";
-                ctx.beginPath();
-                ctx.rect(area.left, area.top, area.right - area.left, area.bottom - area.top);
-                ctx.stroke();
+                ctx.fillStyle = options.color || "#222";
+                borderSquares.forEach(cell => {
+                    const left = x.getPixelForValue(cell.x);
+                    const top = y.getPixelForValue(cell.y + SQUARE_SIZE);
+                    const right = x.getPixelForValue(cell.x + SQUARE_SIZE);
+                    const bottom = y.getPixelForValue(cell.y);
+                    ctx.fillRect(left, top, right - left, bottom - top);
+                });
+                ctx.restore();
+            }
+        };
+
+        // Plugin to draw the 5x5 ball as a square
+        let ballPos = {x: 50, y: 50};
+        const ballSquarePlugin = {
+            id: 'ballSquarePlugin',
+            afterDatasetsDraw(chart, args, options) {
+                const {ctx, scales: {x, y}} = chart;
+                ctx.save();
+                ctx.fillStyle = options.color || "blue";
+                // ballPos is the center, so draw from (center - 2.5, center - 2.5)
+                const left = x.getPixelForValue(ballPos.x - 2.5);
+                const top = y.getPixelForValue(ballPos.y + 2.5);
+                const right = x.getPixelForValue(ballPos.x + 2.5);
+                const bottom = y.getPixelForValue(ballPos.y - 2.5);
+                ctx.fillRect(left, top, right - left, bottom - top);
                 ctx.restore();
             }
         };
 
         const ctx = document.getElementById('myChart').getContext('2d');
-        const data = {
-            datasets: [{
-                label: 'Ball Position',
-                data: [{x: 50, y: 50}],
-                backgroundColor: 'blue',
-                pointRadius: 8 // Ball visual size; adjust for 2-unit diameter in 400px plot
-            }]
-        };
+        const data = { datasets: [] };
         const config = {
             type: 'scatter',
             data: data,
@@ -59,7 +76,8 @@
                 animation: false,
                 plugins: {
                     legend: { display: false },
-                    thickSquareBorder: { width: 8, color: "#222" }
+                    borderSquarePlugin: { color: "#222" },
+                    ballSquarePlugin: { color: "blue" }
                 },
                 layout: { padding: 0 },
                 maintainAspectRatio: true,
@@ -92,14 +110,14 @@
                     }
                 }
             },
-            plugins: [thickSquareBorder]
+            plugins: [borderSquarePlugin, ballSquarePlugin]
         };
         const myChart = new Chart(ctx, config);
 
         let ws = new WebSocket(`ws://${window.location.host}/ws`);
         ws.onmessage = (event) => {
             let msg = JSON.parse(event.data);
-            data.datasets[0].data[0] = {x: msg.x, y: msg.y};
+            ballPos = {x: msg.x, y: msg.y};
             myChart.update();
         };
     </script>
