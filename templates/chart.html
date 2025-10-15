@@ -44,14 +44,14 @@
         const borderSquares = {{ border|tojson }};
         const CIRCLE_RADIUS = 1.5;
 
-        // Plugin to draw 2x2 border squares with thin borders
+        // Plugin to draw 2x2 border squares with thin (0.5px) borders
         const borderSquarePlugin = {
             id: 'borderSquarePlugin',
             beforeDatasetsDraw(chart, args, options) {
                 const {ctx, scales: {x, y}} = chart;
                 ctx.save();
-                ctx.strokeStyle = options.color || "#222"; // or any color you prefer
-                ctx.lineWidth = options.lineWidth || 1;    // thin border
+                ctx.strokeStyle = options.color || "#222";
+                ctx.lineWidth = options.lineWidth || 0.5;
                 borderSquares.forEach(cell => {
                     const left = x.getPixelForValue(cell.x);
                     const top = y.getPixelForValue(cell.y + 2);
@@ -62,7 +62,7 @@
                 ctx.restore();
             }
         };
-        
+
         // Plugin to draw the 3 sensor circles
         let sensorXs = [48, 50, 52];
         let sensorY = 50;
@@ -93,7 +93,7 @@
                 animation: false,
                 plugins: {
                     legend: { display: false },
-                    borderSquarePlugin: { color: "#222" },
+                    borderSquarePlugin: { color: "#222", lineWidth: 0.5 },
                     ballSensorPlugin: { color: "blue" }
                 },
                 layout: { padding: 0 },
