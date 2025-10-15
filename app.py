@@ -34,4 +34,4 @@ async def ws():
         await asyncio.sleep(0.02)  # 50 FPS
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=5000)
