@@ -3,10 +3,32 @@
 <head>
     <title>Bouncing Ball 2D Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .chart-container {
+        width: 320px;
+        height: 320px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 2px solid #222;
+        background: #fafafa;
+        margin: 32px auto;
+        box-shadow: 0 2px 8px #aaa2;
+        border-radius: 10px;
+      }
+      canvas {
+        /* Force canvas to fill container */
+        width: 300px !important;
+        height: 300px !important;
+        display: block;
+      }
+    </style>
 </head>
 <body>
-    <h2>Bouncing Ball (2D)</h2>
-    <canvas id="myChart" width="300" height="300"></canvas>
+    <h2 style="text-align:center;">Bouncing Ball (2D)</h2>
+    <div class="chart-container">
+      <canvas id="myChart" width="300" height="300"></canvas>
+    </div>
     <script>
         const ctx = document.getElementById('myChart').getContext('2d');
         const data = {
@@ -14,7 +36,7 @@
                 label: 'Ball Position',
                 data: [{x: 0.5, y: 0.5}],
                 backgroundColor: 'blue',
-                pointRadius: 15
+                pointRadius: 10
             }]
         };
         const config = {
@@ -43,11 +65,9 @@
         let ws = new WebSocket(`ws://${window.location.host}/ws`);
         ws.onmessage = (event) => {
             let msg = JSON.parse(event.data);
-            // Update the ball position
             data.datasets[0].data[0] = {x: msg.x, y: msg.y};
             myChart.update();
         };
     </script>
 </body>
 </html>
-
