@@ -5,9 +5,8 @@ import json
 app = Quart(__name__)
 
 # Ball physics parameters
-radius = 0.05
 x, y = 0.5, 0.5
-vx, vy = 0.012, 0.009  # set initial speeds for a fun bounce
+vx, vy = 0.012, 0.009  # set initial speeds
 
 @app.route("/")
 async def index():
@@ -17,27 +16,23 @@ async def index():
 async def ws():
     global x, y, vx, vy
     while True:
-        # Update position
         x += vx
         y += vy
 
-        # Bounce off vertical edges
-        if x - radius < 0:
-            x = radius
+        # Bounce exactly at axes (0 and 1)
+        if x < 0:
+            x = 0
             vx = -vx
-        if x + radius > 1:
-            x = 1 - radius
+        if x > 1:
+            x = 1
             vx = -vx
-
-        # Bounce off horizontal edges
-        if y - radius < 0:
-            y = radius
+        if y < 0:
+            y = 0
             vy = -vy
-        if y + radius > 1:
-            y = 1 - radius
+        if y > 1:
+            y = 1
             vy = -vy
 
-        # Send latest position
         await websocket.send(json.dumps({"x": x, "y": y}))
         await asyncio.sleep(0.02)  # 50 FPS
 
