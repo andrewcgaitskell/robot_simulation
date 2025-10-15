@@ -4,9 +4,10 @@ import json
 
 app = Quart(__name__)
 
+# Ball parameters and initial state
 x, y = 50, 50
 vx, vy = 0.6, 0.4
-half_side = 2.5
+half_side = 2.5  # Half of 5x5
 
 def get_border_squares():
     border = []
@@ -42,27 +43,31 @@ async def ws():
 
         bounced = False
 
-        # Check for X direction collision
+        # X direction collision (horizontal bounce)
         if (cell_x, prev_cell_y) in border_set and cell_x != prev_cell_x:
             vx = -vx
             bounced = True
+            next_x = prev_x  # Step back if bounced
 
-        # Check for Y direction collision
+        # Y direction collision (vertical bounce)
         if (prev_cell_x, cell_y) in border_set and cell_y != prev_cell_y:
             vy = -vy
             bounced = True
+            next_y = prev_y  # Step back if bounced
 
-        # If both axes would hit a border at once (corner), reverse both
+        # Corner (simultaneous) collision
         if (cell_x, cell_y) in border_set and (cell_x != prev_cell_x and cell_y != prev_cell_y):
             vx = -vx
             vy = -vy
+            next_x = prev_x
+            next_y = prev_y
             bounced = True
 
-        # Move
-        x += vx
-        y += vy
+        # Move (step back if bounced, else take next step)
+        x = next_x
+        y = next_y
 
-        # Clamp so center never leaves [2.5, 97.5]
+        # Clamp to keep center inside visible area
         if x - half_side < 0:
             x = half_side
             vx = -vx
