@@ -1,17 +1,13 @@
 from quart import Quart, render_template, websocket
 import asyncio
 import json
-import math
 
 app = Quart(__name__)
 
 # Ball physics parameters
-radius = 0.1
-x = 0.5
-y = 0.8
-vy = 0.0
-g = 0.01
-energy_loss = 0.9
+radius = 0.05
+x, y = 0.5, 0.5
+vx, vy = 0.012, 0.009  # set initial speeds for a fun bounce
 
 @app.route("/")
 async def index():
@@ -19,18 +15,30 @@ async def index():
 
 @app.websocket("/ws")
 async def ws():
-    global y, vy
-    t = 0
+    global x, y, vx, vy
     while True:
-        # Ball physics update
-        vy -= g
+        # Update position
+        x += vx
         y += vy
+
+        # Bounce off vertical edges
+        if x - radius < 0:
+            x = radius
+            vx = -vx
+        if x + radius > 1:
+            x = 1 - radius
+            vx = -vx
+
+        # Bounce off horizontal edges
         if y - radius < 0:
             y = radius
-            vy = -vy * energy_loss
+            vy = -vy
+        if y + radius > 1:
+            y = 1 - radius
+            vy = -vy
 
-        t += 1
-        await websocket.send(json.dumps({"t": t, "y": y}))
+        # Send latest position
+        await websocket.send(json.dumps({"x": x, "y": y}))
         await asyncio.sleep(0.02)  # 50 FPS
 
 if __name__ == "__main__":
