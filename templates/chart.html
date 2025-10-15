@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Bouncing Ball (5x5 Square, Debug Console)</title>
+    <title>Robot Line Sensor (3 Circles)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
       .chart-container {
@@ -35,16 +35,16 @@
     </style>
 </head>
 <body>
-    <h2 style="text-align:center;">Bouncing Ball (5x5 Square, Debug Out)</h2>
+    <h2 style="text-align:center;">Robot Line Sensor (3 Circles)</h2>
     <div class="chart-container">
       <canvas id="myChart" width="400" height="400"></canvas>
     </div>
     <pre id="debugout"></pre>
     <script>
         const borderSquares = {{ border|tojson }};
-        const SQUARE_SIZE = 5;
+        const CIRCLE_RADIUS = 1.5;
 
-        // Plugin to draw 5x5 border squares
+        // Plugin to draw 2x2 border squares
         const borderSquarePlugin = {
             id: 'borderSquarePlugin',
             beforeDatasetsDraw(chart, args, options) {
@@ -53,8 +53,8 @@
                 ctx.fillStyle = options.color || "#222";
                 borderSquares.forEach(cell => {
                     const left = x.getPixelForValue(cell.x);
-                    const top = y.getPixelForValue(cell.y + SQUARE_SIZE);
-                    const right = x.getPixelForValue(cell.x + SQUARE_SIZE);
+                    const top = y.getPixelForValue(cell.y + 2);
+                    const right = x.getPixelForValue(cell.x + 2);
                     const bottom = y.getPixelForValue(cell.y);
                     ctx.fillRect(left, top, right - left, bottom - top);
                 });
@@ -62,19 +62,23 @@
             }
         };
 
-        // Plugin to draw the 5x5 ball as a square
-        let ballPos = {x: 50, y: 50};
-        const ballSquarePlugin = {
-            id: 'ballSquarePlugin',
+        // Plugin to draw the 3 sensor circles
+        let sensorXs = [48, 50, 52];
+        let sensorY = 50;
+        const ballSensorPlugin = {
+            id: 'ballSensorPlugin',
             afterDatasetsDraw(chart, args, options) {
                 const {ctx, scales: {x, y}} = chart;
                 ctx.save();
                 ctx.fillStyle = options.color || "blue";
-                const left = x.getPixelForValue(ballPos.x - 2.5);
-                const top = y.getPixelForValue(ballPos.y + 2.5);
-                const right = x.getPixelForValue(ballPos.x + 2.5);
-                const bottom = y.getPixelForValue(ballPos.y - 2.5);
-                ctx.fillRect(left, top, right - left, bottom - top);
+                sensorXs.forEach(cx => {
+                    const px = x.getPixelForValue(cx);
+                    const py = y.getPixelForValue(sensorY);
+                    const pr = (x.getPixelForValue(cx + CIRCLE_RADIUS) - x.getPixelForValue(cx));
+                    ctx.beginPath();
+                    ctx.arc(px, py, pr, 0, 2 * Math.PI);
+                    ctx.fill();
+                });
                 ctx.restore();
             }
         };
@@ -89,7 +93,7 @@
                 plugins: {
                     legend: { display: false },
                     borderSquarePlugin: { color: "#222" },
-                    ballSquarePlugin: { color: "blue" }
+                    ballSensorPlugin: { color: "blue" }
                 },
                 layout: { padding: 0 },
                 maintainAspectRatio: true,
@@ -104,7 +108,7 @@
                             drawBorder: false
                         },
                         border: { display: false },
-                        ticks: { stepSize: 5, display: false },
+                        ticks: { stepSize: 2, display: false },
                         title: { display: false }
                     },
                     y: {
@@ -117,19 +121,20 @@
                             drawBorder: false
                         },
                         border: { display: false },
-                        ticks: { stepSize: 5, display: false },
+                        ticks: { stepSize: 2, display: false },
                         title: { display: false }
                     }
                 }
             },
-            plugins: [borderSquarePlugin, ballSquarePlugin]
+            plugins: [borderSquarePlugin, ballSensorPlugin]
         };
         const myChart = new Chart(ctx, config);
 
         let ws = new WebSocket(`ws://${window.location.host}/ws`);
         ws.onmessage = (event) => {
             let msg = JSON.parse(event.data);
-            ballPos = {x: msg.x, y: msg.y};
+            sensorXs = msg.sensors;
+            sensorY = msg.y;
             if (msg.debug) {
                 document.getElementById("debugout").textContent = msg.debug;
             }
@@ -137,6 +142,4 @@
         };
     </script>
 </body>
-</html
-    
-    >
+</html>
