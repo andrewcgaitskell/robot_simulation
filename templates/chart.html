@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Bouncing Square Ball (Bounces on Black Squares)</title>
+    <title>Bouncing Ball (5x5 Square, Debug Console)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
       .chart-container {
@@ -20,13 +20,26 @@
         height: 400px !important;
         display: block;
       }
+      #debugout {
+        width: 400px;
+        margin: 16px auto;
+        background: #222;
+        color: #0f0;
+        font-family: monospace;
+        font-size: 12px;
+        border-radius: 6px;
+        padding: 10px;
+        white-space: pre-wrap;
+        box-sizing: border-box;
+      }
     </style>
 </head>
 <body>
-    <h2 style="text-align:center;">Bouncing Ball (Bounces on Black Squares)</h2>
+    <h2 style="text-align:center;">Bouncing Ball (5x5 Square, Debug Out)</h2>
     <div class="chart-container">
       <canvas id="myChart" width="400" height="400"></canvas>
     </div>
+    <pre id="debugout"></pre>
     <script>
         const borderSquares = {{ border|tojson }};
         const SQUARE_SIZE = 5;
@@ -57,7 +70,6 @@
                 const {ctx, scales: {x, y}} = chart;
                 ctx.save();
                 ctx.fillStyle = options.color || "blue";
-                // ballPos is the center, so draw from (center - 2.5, center - 2.5)
                 const left = x.getPixelForValue(ballPos.x - 2.5);
                 const top = y.getPixelForValue(ballPos.y + 2.5);
                 const right = x.getPixelForValue(ballPos.x + 2.5);
@@ -118,8 +130,13 @@
         ws.onmessage = (event) => {
             let msg = JSON.parse(event.data);
             ballPos = {x: msg.x, y: msg.y};
+            if (msg.debug) {
+                document.getElementById("debugout").textContent = msg.debug;
+            }
             myChart.update();
         };
     </script>
 </body>
-</html>
+</html
+    
+    >
