@@ -1,32 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Bouncing Ball Real-Time Chart</title>
+    <title>Bouncing Ball 2D Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h2>Bouncing Ball (Y Position Over Time)</h2>
-    <canvas id="myChart" width="800" height="400"></canvas>
+    <h2>Bouncing Ball (2D)</h2>
+    <canvas id="myChart" width="500" height="500"></canvas>
     <script>
         const ctx = document.getElementById('myChart').getContext('2d');
         const data = {
-            labels: [],
             datasets: [{
-                label: 'Ball Y Position',
-                data: [],
-                borderColor: 'blue',
-                fill: false,
-                tension: 0.1
+                label: 'Ball Position',
+                data: [{x: 0.5, y: 0.5}],
+                backgroundColor: 'blue',
+                pointRadius: 15
             }]
         };
         const config = {
-            type: 'line',
+            type: 'scatter',
             data: data,
             options: {
                 animation: false,
                 scales: {
-                    x: { title: { display: true, text: 'Time (frames)' } },
-                    y: { min: 0, max: 1, title: { display: true, text: 'Height' } }
+                    x: {
+                        type: 'linear',
+                        min: 0,
+                        max: 1,
+                        title: { display: true, text: 'X' }
+                    },
+                    y: {
+                        type: 'linear',
+                        min: 0,
+                        max: 1,
+                        title: { display: true, text: 'Y' }
+                    }
                 }
             }
         };
@@ -35,14 +43,11 @@
         let ws = new WebSocket(`ws://${window.location.host}/ws`);
         ws.onmessage = (event) => {
             let msg = JSON.parse(event.data);
-            data.labels.push(msg.t);
-            data.datasets[0].data.push(msg.y);
-            if (data.labels.length > 200) {
-                data.labels.shift();
-                data.datasets[0].data.shift();
-            }
+            // Update the ball position
+            data.datasets[0].data[0] = {x: msg.x, y: msg.y};
             myChart.update();
         };
     </script>
 </body>
 </html>
+
