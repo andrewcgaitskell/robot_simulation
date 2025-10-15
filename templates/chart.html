@@ -43,22 +43,46 @@
     <script>
         const borderSquares = {{ border|tojson }};
         const CIRCLE_RADIUS = 1.5;
+        const GRID_SIZE = 2;
 
-        // Plugin to draw 2x2 border squares with thin (0.5px) borders
-        const borderSquarePlugin = {
-            id: 'borderSquarePlugin',
+        // Plugin to draw filled black border squares and thin grid lines
+        const borderAndGridPlugin = {
+            id: 'borderAndGridPlugin',
             beforeDatasetsDraw(chart, args, options) {
                 const {ctx, scales: {x, y}} = chart;
+
+                // Draw filled border squares
                 ctx.save();
-                ctx.strokeStyle = options.color || "#222";
-                ctx.lineWidth = options.lineWidth || 0.5;
+                ctx.fillStyle = "#000";
                 borderSquares.forEach(cell => {
                     const left = x.getPixelForValue(cell.x);
-                    const top = y.getPixelForValue(cell.y + 2);
-                    const right = x.getPixelForValue(cell.x + 2);
+                    const top = y.getPixelForValue(cell.y + GRID_SIZE);
+                    const right = x.getPixelForValue(cell.x + GRID_SIZE);
                     const bottom = y.getPixelForValue(cell.y);
-                    ctx.strokeRect(left, top, right - left, bottom - top);
+                    ctx.fillRect(left, top, right - left, bottom - top);
                 });
+                ctx.restore();
+
+                // Draw thin grid lines
+                ctx.save();
+                ctx.strokeStyle = options.gridColor || "#888";
+                ctx.lineWidth = options.gridLineWidth || 0.25;
+                // Vertical grid lines
+                for (let gx = 0; gx <= 100; gx += GRID_SIZE) {
+                    const px = x.getPixelForValue(gx);
+                    ctx.beginPath();
+                    ctx.moveTo(px, y.getPixelForValue(0));
+                    ctx.lineTo(px, y.getPixelForValue(100));
+                    ctx.stroke();
+                }
+                // Horizontal grid lines
+                for (let gy = 0; gy <= 100; gy += GRID_SIZE) {
+                    const py = y.getPixelForValue(gy);
+                    ctx.beginPath();
+                    ctx.moveTo(x.getPixelForValue(0), py);
+                    ctx.lineTo(x.getPixelForValue(100), py);
+                    ctx.stroke();
+                }
                 ctx.restore();
             }
         };
@@ -93,7 +117,7 @@
                 animation: false,
                 plugins: {
                     legend: { display: false },
-                    borderSquarePlugin: { color: "#222", lineWidth: 0.5 },
+                    borderAndGridPlugin: { gridColor: "#888", gridLineWidth: 0.25 },
                     ballSensorPlugin: { color: "blue" }
                 },
                 layout: { padding: 0 },
@@ -103,11 +127,7 @@
                         type: 'linear',
                         min: 0,
                         max: 100,
-                        grid: {
-                            color: '#888',
-                            lineWidth: 2,
-                            drawBorder: false
-                        },
+                        grid: { display: false },
                         border: { display: false },
                         ticks: { stepSize: 2, display: false },
                         title: { display: false }
@@ -116,18 +136,14 @@
                         type: 'linear',
                         min: 0,
                         max: 100,
-                        grid: {
-                            color: '#888',
-                            lineWidth: 2,
-                            drawBorder: false
-                        },
+                        grid: { display: false },
                         border: { display: false },
                         ticks: { stepSize: 2, display: false },
                         title: { display: false }
                     }
                 }
             },
-            plugins: [borderSquarePlugin, ballSensorPlugin]
+            plugins: [borderAndGridPlugin, ballSensorPlugin]
         };
         const myChart = new Chart(ctx, config);
 
