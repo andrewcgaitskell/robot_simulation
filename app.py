@@ -26,21 +26,27 @@ async def index():
     border = get_border_squares()
     return await render_template("chart.html", border=border)
 
-def peanut_shape_pixels(grid_size=100, r=22, cx1=38, cx2=62, cy=50):
+import math
+
+def smooth_peanut_outline_pixels(
+    grid_size=100, r=22, cx1=38, cx2=62, cy=50, thickness=1.5, p=4.5
+):
     pixels = []
     for x in range(grid_size):
         for y in range(grid_size):
-            # Distance from first circle center
-            d1 = ((x - cx1) ** 2 + (y - cy) ** 2) ** 0.5
-            # Distance from second circle center
-            d2 = ((x - cx2) ** 2 + (y - cy) ** 2) ** 0.5
-            if d1 < r or d2 < r:
+            # Distances to each lobe center
+            d1 = math.hypot(x - cx1, y - cy)
+            d2 = math.hypot(x - cx2, y - cy)
+            # p-norm blend (p=inf -> max, p=2 -> euclidean, p=4~8 looks "peanutty")
+            blend = ( (d1**p + d2**p) ** (1/p) )
+            # Outline only: within thickness of r
+            if abs(blend - r) < thickness:
                 pixels.append({"x": x, "y": y})
     return pixels
 
 @app.route("/peanut")
 async def peanut_chart():
-    peanut_pixels = peanut_shape_pixels()
+    peanut_pixels = smooth_peanut_outline_pixels()
     # Pass peanut_pixels to the template
     return await render_template("peanut_chart.html", peanut_pixels=json.dumps(peanut_pixels))
 
