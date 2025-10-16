@@ -2,6 +2,11 @@ from quart import Quart, render_template, websocket
 import asyncio
 import json
 
+import math
+
+import geopandas as gpd
+from shapely.geometry import Point
+
 app = Quart(__name__)
 
 # Ball parameters
@@ -26,8 +31,6 @@ async def index():
     border = get_border_squares()
     return await render_template("chart.html", border=border)
 
-import math
-
 def smooth_peanut_outline_pixels(
     grid_size=100, r=20, cx1=32, cx2=68, cy=50, thickness=1.5, p=4.5
 ):
@@ -42,9 +45,37 @@ def smooth_peanut_outline_pixels(
                 pixels.append({"x": x, "y": y})
     return pixels
 
+def peanut_outline_pixels(
+    grid_size=100, radius=22, cx1=38, cy1=50, cx2=62, cy2=50
+):
+    """
+    Returns a list of {"x": int, "y": int} dicts representing the outline
+    of the union of two circles (a peanut shape) on a grid.
+    """
+    # Create two circle polygons
+    circle1 = Point(cx1, cy1).buffer(radius, resolution=100)
+    circle2 = Point(cx2, cy2).buffer(radius, resolution=100)
+    # Union
+    peanut_shape = circle1.union(circle2)
+    # Get outline pixels
+    pixels = []
+    for x in range(grid_size):
+        for y in range(grid_size):
+            pt = Point(x, y)
+            # Pixel is inside the peanut and at least one neighbor is outside (i.e., outline)
+            if peanut_shape.contains(pt):
+                if (
+                    not peanut_shape.contains(Point(x-1, y)) or
+                    not peanut_shape.contains(Point(x+1, y)) or
+                    not peanut_shape.contains(Point(x, y-1)) or
+                    not peanut_shape.contains(Point(x, y+1))
+                ):
+                    pixels.append({"x": x, "y": y})
+    return pixels
+
 @app.route("/peanut")
 async def peanut_chart():
-    peanut_pixels = smooth_peanut_outline_pixels()
+    peanut_pixels = peanut_outline_pixels()
     # Pass peanut_pixels to the template
     return await render_template("peanut_chart.html", peanut_pixels=json.dumps(peanut_pixels))
 
