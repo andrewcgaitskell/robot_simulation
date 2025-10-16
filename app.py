@@ -29,17 +29,15 @@ async def index():
 import math
 
 def smooth_peanut_outline_pixels(
-    grid_size=100, r=22, cx1=38, cx2=62, cy=50, thickness=1.5, p=4.5
+    grid_size=100, r=20, cx1=32, cx2=68, cy=50, thickness=1.5, p=4.5
 ):
+    import math
     pixels = []
     for x in range(grid_size):
         for y in range(grid_size):
-            # Distances to each lobe center
             d1 = math.hypot(x - cx1, y - cy)
             d2 = math.hypot(x - cx2, y - cy)
-            # p-norm blend (p=inf -> max, p=2 -> euclidean, p=4~8 looks "peanutty")
-            blend = ( (d1**p + d2**p) ** (1/p) )
-            # Outline only: within thickness of r
+            blend = ((d1**p + d2**p) ** (1/p))
             if abs(blend - r) < thickness:
                 pixels.append({"x": x, "y": y})
     return pixels
