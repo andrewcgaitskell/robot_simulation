@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Peanut Path</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .chart-container {
+        width: 420px;
+        height: 420px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #fafafa;
+        margin: 32px auto;
+        box-shadow: 0 2px 8px #aaa2;
+        border-radius: 10px;
+      }
+      canvas {
+        width: 400px !important;
+        height: 400px !important;
+        display: block;
+      }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Peanut Path Matrix</h2>
+    <div class="chart-container">
+      <canvas id="myChart" width="400" height="400"></canvas>
+    </div>
+    <script>
+        // Get peanutPixels from Quart context as a JS object
+        const peanutPixels = {{ peanut_pixels | safe }};
+
+        const GRID_SIZE = 2; // Optional, for grid display
+
+        const peanutPathPlugin = {
+            id: 'peanutPathPlugin',
+            beforeDatasetsDraw(chart, args, options) {
+                const {ctx, scales: {x, y}} = chart;
+
+                ctx.save();
+                ctx.fillStyle = "#6c4a1b";
+                peanutPixels.forEach(cell => {
+                    const left = x.getPixelForValue(cell.x);
+                    const top = y.getPixelForValue(cell.y + 1);
+                    const right = x.getPixelForValue(cell.x + 1);
+                    const bottom = y.getPixelForValue(cell.y);
+                    ctx.fillRect(left, top, right - left, bottom - top);
+                });
+                ctx.restore();
+            }
+        };
+
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const data = { datasets: [] };
+        const config = {
+            type: 'scatter',
+            data: data,
+            options: {
+                animation: false,
+                plugins: {
+                    legend: { display: false },
+                    peanutPathPlugin: {}
+                },
+                layout: { padding: 0 },
+                maintainAspectRatio: true,
+                scales: {
+                    x: {
+                        type: 'linear',
+                        min: 0,
+                        max: 100,
+                        grid: { display: false },
+                        border: { display: false },
+                        ticks: { display: false }
+                    },
+                    y: {
+                        type: 'linear',
+                        min: 0,
+                        max: 100,
+                        grid: { display: false },
+                        border: { display: false },
+                        ticks: { display: false }
+                    }
+                }
+            },
+            plugins: [peanutPathPlugin]
+        };
+        const myChart = new Chart(ctx, config);
+    </script>
+</body>
+</html>
