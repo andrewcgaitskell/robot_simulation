@@ -73,9 +73,40 @@ def peanut_outline_pixels(
                     pixels.append({"x": x, "y": y})
     return pixels
 
+def multi_circle_peanut_outline_pixels(
+    grid_size=100,
+    r_large=22, cx1=38, cy1=50, cx2=62, cy2=50,
+    r_small=8, sx1=50, sy1=41, sx2=50, sy2=59
+):
+    """
+    Returns a list of {"x": int, "y": int} dicts representing the outline
+    of a peanut shape made from two large lobe circles and two small waist circles.
+    """
+    # Create four circle polygons
+    circle1 = Point(cx1, cy1).buffer(r_large, resolution=100)
+    circle2 = Point(cx2, cy2).buffer(r_large, resolution=100)
+    small1 = Point(sx1, sy1).buffer(r_small, resolution=100)
+    small2 = Point(sx2, sy2).buffer(r_small, resolution=100)
+    # Union all
+    peanut_shape = circle1.union(circle2).union(small1).union(small2)
+    # Get outline pixels
+    pixels = []
+    for x in range(grid_size):
+        for y in range(grid_size):
+            pt = Point(x, y)
+            if peanut_shape.contains(pt):
+                if (
+                    not peanut_shape.contains(Point(x-1, y)) or
+                    not peanut_shape.contains(Point(x+1, y)) or
+                    not peanut_shape.contains(Point(x, y-1)) or
+                    not peanut_shape.contains(Point(x, y+1))
+                ):
+                    pixels.append({"x": x, "y": y})
+    return pixels
+
 @app.route("/peanut")
 async def peanut_chart():
-    peanut_pixels = peanut_outline_pixels()
+    peanut_pixels = multi_circle_peanut_outline_pixels()
     # Pass peanut_pixels to the template
     return await render_template("peanut_chart.html", peanut_pixels=json.dumps(peanut_pixels))
 
