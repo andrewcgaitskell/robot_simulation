@@ -44,9 +44,6 @@ async def peanut_chart():
     # Pass peanut_pixels to the template
     return await render_template("peanut_chart.html", peanut_pixels=json.dumps(peanut_pixels))
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
-
 @app.websocket("/ws")
 async def ws():
     global x, y, vx, vy
