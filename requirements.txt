@@ -1,2 +1,4 @@
 quart
+geopandas
+shapely
 
