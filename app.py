@@ -8,15 +8,15 @@ app = Quart(__name__)
 x, y = 50, 50
 vx, vy = 0.6, 0.4
 circle_radius = 0.25      # Each circle: diameter 1 units
-circle_spacing = 3       # Center-to-center distance
+circle_spacing = 3        # Center-to-center distance
 sensor_offsets = [-circle_spacing, 0, circle_spacing]  # x-offsets for left, center, right
 
 def get_border_squares():
     border = []
     border_set = set()
-    for i in range(0, 100, 2):
-        for j in range(0, 100, 2):
-            if i < 2 or i >= 98 or j < 2 or j >= 98:
+    for i in range(0, 100):
+        for j in range(0, 100):
+            if i == 0 or i == 99 or j == 0 or j == 99:
                 border.append({'x': i, 'y': j})
                 border_set.add((i, j))
     return border, border_set
@@ -26,9 +26,9 @@ async def index():
     border, _ = get_border_squares()
     return await render_template("chart.html", border=border)
 
-# Helper: which 2x2 cell is a point in?
+# Helper: which 1x1 cell is a point in?
 def cell_of(px, py):
-    return (int(px // 2) * 2, int(py // 2) * 2)
+    return (int(px), int(py))
 
 @app.websocket("/ws")
 async def ws():
@@ -73,8 +73,6 @@ async def ws():
         if bounced_x or bounced_y:
             debug.insert(0, f"Position: ({x:.2f},{y:.2f}) Velocity: ({vx:.2f},{vy:.2f})")
 
-        # (No clamping: allow the sensor to leave the visible area if bounced out)
-
         await websocket.send(json.dumps({
             "x": x, "y": y,
             "sensors": [x + dx for dx in sensor_offsets],
@@ -84,3 +82,4 @@ async def ws():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
