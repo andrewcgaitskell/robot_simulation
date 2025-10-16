@@ -21,10 +21,31 @@ def get_border_squares():
                 border.append({'x': i, 'y': j})
     return border
 
-@app.route("/")
+@app.route("/bouncing")
 async def index():
     border = get_border_squares()
     return await render_template("chart.html", border=border)
+
+def peanut_shape_pixels(grid_size=100, r=22, cx1=38, cx2=62, cy=50):
+    pixels = []
+    for x in range(grid_size):
+        for y in range(grid_size):
+            # Distance from first circle center
+            d1 = ((x - cx1) ** 2 + (y - cy) ** 2) ** 0.5
+            # Distance from second circle center
+            d2 = ((x - cx2) ** 2 + (y - cy) ** 2) ** 0.5
+            if d1 < r or d2 < r:
+                pixels.append({"x": x, "y": y})
+    return pixels
+
+@app.route("/peanut")
+async def peanut_chart():
+    peanut_pixels = peanut_shape_pixels()
+    # Pass peanut_pixels to the template
+    return await render_template("peanut_chart.html", peanut_pixels=json.dumps(peanut_pixels))
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
 
 @app.websocket("/ws")
 async def ws():
