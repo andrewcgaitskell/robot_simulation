@@ -3,7 +3,9 @@
 
 ## Starting the container
 
-docker-compose up
+  cd /home/picontrol/Code/robot_simulation
+  
+  sudo docker-compose up
 
 ## On Code Change and Pull
 
@@ -13,7 +15,7 @@ docker-compose up
 
 ## Restart manually
 
-  docker-compose restart quart_app
+  sudo docker-compose restart quart_app
 
 
   
