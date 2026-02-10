@@ -1,0 +1,13 @@
+services:
+  quart_app:
+    build: .
+    container_name: quart_app
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+    environment:
+      - QUART_APP=app:app
+      - QUART_ENV=development
+    command: quart run --host 0.0.0.0 --reload
+
