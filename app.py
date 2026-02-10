@@ -39,17 +39,5 @@ async def chart_plotly_spheres():
     ]
     return await render_template('chart_plotly_spheres.html', data=data)
 
-@app.route('/chart_plotly_bars')
-async def chart_plotly_bars():
-    # Sample data for the 3D chart
-    data = [
-        {'x': 0, 'y': 5, 'z': 0, 'value': 10},
-        {'x': 2, 'y': 3, 'z': 1, 'value': 15},
-        {'x': -2, 'y': 7, 'z': -1, 'value': 20},
-        {'x': 1, 'y': 2, 'z': 2, 'value': 12},
-        {'x': -1, 'y': 6, 'z': -2, 'value': 18},
-    ]
-    return await render_template('chart_plotly_bars.html', data=data)
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
