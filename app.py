@@ -15,8 +15,8 @@ async def goodbye():
 async def health():
     return {'status': 'healthy'}
 
-@app.route('/chart')
-async def chart():
+@app.route('/chart_threejs')
+async def chart_threejs():
     # Sample data for the 3D chart
     data = [
         {'x': 0, 'y': 5, 'z': 0, 'value': 10},
@@ -25,7 +25,7 @@ async def chart():
         {'x': 1, 'y': 2, 'z': 2, 'value': 12},
         {'x': -1, 'y': 6, 'z': -2, 'value': 18},
     ]
-    return await render_template('chart.html', data=data)
+    return await render_template('chart_threejs.html', data=data)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
