@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Chart with Plotly</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+        }
+        #chart {
+            width: 100vw;
+            height: 100vh;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h2>3D Bar Chart</h2>
+        <p>Interactive 3D Visualization</p>
+    </div>
+    <div id="chart"></div>
+
+    <script src="{{ url_for('static', filename='js/plotly.min.js') }}"></script>
+    
+    <script>
+        // Data from Jinja2
+        const data = {{ data | tojson }};
+
+        // Extract coordinates and values
+        const x = data.map(d => d.x);
+        const y = data.map(d => d.y);
+        const z = data.map(d => d.z);
+        const values = data.map(d => d.value);
+
+        // Create 3D scatter plot with bars
+        const trace = {
+            x: x,
+            y: y,
+            z: z,
+            mode: 'markers',
+            marker: {
+                size: values,
+                color: values,
+                colorscale: 'Viridis',
+                showscale: true,
+                colorbar: {
+                    title: 'Value'
+                }
+            },
+            type: 'scatter3d',
+            name: 'Data Points'
+        };
+
+        const layout = {
+            title: '3D Data Visualization',
+            paper_bgcolor: '#1a1a2e',
+            plot_bgcolor: '#1a1a2e',
+            font: { color: 'white' },
+            scene: {
+                xaxis: { title: 'X Axis', gridcolor: '#444' },
+                yaxis: { title: 'Y Axis', gridcolor: '#444' },
+                zaxis: { title: 'Z Axis', gridcolor: '#444' },
+                bgcolor: '#1a1a2e'
+            },
+            margin: { l: 0, r: 0, b: 0, t: 40 }
+        };
+
+        Plotly.newPlot('chart', [trace], layout, {responsive: true});
+    </script>
+</body>
+</html>
