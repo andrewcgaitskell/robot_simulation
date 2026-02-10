@@ -6,6 +6,11 @@ app = Quart(__name__)
 async def hello():
     return {'message': 'Hello from Quart!'}
 
+@app.route('/goodbye')
+async def goodbye():
+    return {'message': 'Goodbye from Quart!'}
+
+
 @app.route('/health')
 async def health():
     return {'status': 'healthy'}
