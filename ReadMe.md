@@ -1,6 +1,10 @@
 
 # Managing the Container
 
+## All Commands run as sudo
+
+  rootless docker is painful!
+
 ## Start in detached mode (runs in background)
 
   sudo docker compose up -d
