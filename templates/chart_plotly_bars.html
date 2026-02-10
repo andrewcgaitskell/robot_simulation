@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Bar Chart with Plotly</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+        }
+        #chart {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div id="chart"></div>
+
+    <script src="{{ url_for('static', filename='js/plotly.min.js') }}"></script>
+    
+    <script>
+        // Data from Jinja2
+        const data = {{ data | tojson }};
+
+        // Create 3D bar chart
+        const trace = {
+            x: data.map(d => d.x),
+            y: data.map(d => d.y),
+            z: data.map(d => d.value),
+            type: 'bar3d',
+            marker: {
+                color: data.map(d => d.value),
+                colorscale: 'Viridis',
+                showscale: true
+            }
+        };
+
+        const layout = {
+            title: '3D Bar Chart',
+            paper_bgcolor: '#1a1a2e',
+            plot_bgcolor: '#1a1a2e',
+            font: { color: 'white' },
+            scene: {
+                xaxis: { title: 'X', gridcolor: '#444' },
+                yaxis: { title: 'Y', gridcolor: '#444' },
+                zaxis: { title: 'Value', gridcolor: '#444' },
+                bgcolor: '#1a1a2e'
+            }
+        };
+
+        Plotly.newPlot('chart', [trace], layout, {responsive: true});
+    </script>
+</body>
+</html>
