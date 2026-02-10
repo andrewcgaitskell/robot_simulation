@@ -28,7 +28,7 @@
 </head>
 <body>
     <div id="info">
-        <h2>3D Bar Chart</h2>
+        <h2>3D Scatter Chart</h2>
         <p>Interactive 3D Visualization</p>
     </div>
     <div id="chart"></div>
@@ -45,7 +45,7 @@
         const z = data.map(d => d.z);
         const values = data.map(d => d.value);
 
-        // Create 3D scatter plot with bars
+        // Create 3D scatter plot
         const trace = {
             x: x,
             y: y,
