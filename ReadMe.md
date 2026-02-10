@@ -37,17 +37,15 @@
 
   cd /home/picontrol/Code/robot_simulation
   
-  sudo docker-compose up -d
+  sudo docker compose up -d
 
 ## On Code Change and Pull
 
-  After making code changes, just save the file
-  
-  Quart will detect the change and reload automatically
+  After pulling code changes, Quart detects the change and reloads automatically
 
 ## Restart manually
 
-  sudo docker-compose restart quart_app
+  sudo docker compose restart quart_app
 
 
   
